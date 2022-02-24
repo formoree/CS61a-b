@@ -115,3 +115,51 @@ print(h(g))
 +  If P(b) (the base case), and
 +  P(k − 1) implies P(k) for all k > b,
 +  then P(k) for all k ≥ b.
+
+#### lambda
+
+==观察下面代码，纯lambda就是一个函数==
+
+> ```python
+> lambda x:x 
+> #等同于
+> def lam(x):
+> 	return x
+> ```
+
++ 对于嵌套lambda 注意传参顺序
+
+```python
+higher_order_lambda = lambda f: lambda x: f(x)
+g = lambda x: x * x
+higher_order_lambda(2)(g) #Error 顺序错误
+higher_order_lambda(g)(2) #4
+```
+
++ 注意嵌套函数的调用顺序
+
+```python
+def cake():
+	print('1')
+	def pie():
+		print('2')
+		return '3'
+	return pie
+chocolate = cake()
+#1 因为return pie
+print(chocolate)
+# function-->也就是pie
+chocolate()
+#2 因为pie() 
+```
++ lambda 表达式可用作调用表达式的运算符或操作数。在下面的示例中，是运算符，并且是操作数。
+
+```python
+>>> (lambda y: y + 5)(4)
+9
+>>> (lambda f, x: f(x))(lambda y: y + 1, 10)
+11
+```
+
+[lambda基础测试]([实验 2：高阶函数、Lambda 表达式|CS 61A 2021年春季刊 (berkeley.edu)](https://inst.eecs.berkeley.edu/~cs61a/sp21/lab/lab02/))
+

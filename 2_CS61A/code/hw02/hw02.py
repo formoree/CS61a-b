@@ -121,6 +121,7 @@ def make_repeater(func, n):
     5
     """
     def repeat(x):
+        nonlocal n
         while n > 0:
             n -= 1
             x = func(x)
@@ -139,12 +140,12 @@ def successor(n):
 
 def one(f):
     """Church numeral 1: same as successor(zero)"""
-    "*** YOUR CODE HERE ***"
+    return lambda x: f(x)
 
 
 def two(f):
     """Church numeral 2: same as successor(successor(zero))"""
-    "*** YOUR CODE HERE ***"
+    return lambda x:f(f(x))
 
 
 three = successor(two)

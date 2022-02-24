@@ -9,7 +9,7 @@ GOAL_SCORE = 100  # The goal of Hog is to score 100 points.
 # Phase 1: Simulator #
 ######################
 
-
+#确定丢几个骰子 并返回分数
 def roll_dice(num_rolls, dice=six_sided):
     """Simulate rolling the DICE exactly NUM_ROLLS > 0 times. Return the sum of
     the outcomes unless any of the outcomes is 1. In that case, return 1.
@@ -21,9 +21,21 @@ def roll_dice(num_rolls, dice=six_sided):
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 1
+    sum = 0 #分数总和
+    flag = 0 #Sow sad标志
+    while num_rolls > 0:
+        time = dice()
+        if time == 1:
+            flag = 1
+        else :
+            sum += time
+        num_rolls -= 1
+    if flag:
+        return 1
+    else:
+        return sum
 
+    # END PROBLEM 1
 
 def piggy_points(score):
     """Return the points scored from rolling 0 dice.
@@ -31,9 +43,18 @@ def piggy_points(score):
     score:  The opponent's current score.
     """
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    square = score * score
+    return min_num(square) + 3
     # END PROBLEM 2
-
+def min_num(x):
+    nums = []
+    while x != 0:
+        nums.append(x % 10)
+        x = x // 10
+    if len(nums) == 0:
+        return 0
+    else:
+        return min(nums)
 
 def take_turn(num_rolls, opponent_score, dice=six_sided, goal=GOAL_SCORE):
     """Simulate a turn rolling NUM_ROLLS dice, which may be 0 in the case
@@ -50,8 +71,13 @@ def take_turn(num_rolls, opponent_score, dice=six_sided, goal=GOAL_SCORE):
     assert num_rolls >= 0, 'Cannot roll a negative number of dice in take_turn.'
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     assert opponent_score < goal, 'The game should be over.'
+
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    #如果丢0个
+    if num_rolls == 0:
+        return piggy_points(opponent_score)
+    #如果丢0个以上
+    return roll_dice(num_rolls,dice)
     # END PROBLEM 3
 
 
@@ -73,7 +99,9 @@ def more_boar(player_score, opponent_score):
     False
     """
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    if player_score == opponent_score and player_score == 0:
+        return True
+    return player_score % 10 < opponent_score % 10 and more_boar(player_score//10,opponent_score//10)
     # END PROBLEM 4
 
 
@@ -112,7 +140,28 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     """
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    while score0 < goal and score1 < goal:
+        #player0
+        num_rolls = strategy0(score0,score1)
+        score0 += take_turn(num_rolls,score1,dice,goal)
+        if score0 >= goal:
+            break
+        while more_boar(score0,score1):
+            num_rolls = strategy0(score0, score1)
+            score0 += take_turn(num_rolls, score1, dice, goal)
+            if score0 > goal:
+                return score0, score1
+        #player1
+        num_rolls = strategy1(score1,score0)
+        score1 += take_turn(num_rolls,score0,dice,goal)
+        if score1 >= goal:
+            break
+        while more_boar(score1,score0):
+            num_rolls = strategy1(score1, score0)
+            score1 += take_turn(num_rolls, score0, dice, goal)
+            if score1 >= goal:
+                return score0, score1
+
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6

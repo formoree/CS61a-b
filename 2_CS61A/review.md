@@ -2,6 +2,8 @@
 
 > 第一题就出问题简直好气。实际上python很灵活，我学了C以为赋值只能是值赋值，要么就函数指针，结果这个居然可以f = add  和 f = sub！惊呆了
 
+==高阶函数的应用==
+
 ```python
 from operator import add, sub
 
@@ -27,6 +29,8 @@ def a_plus_abs_b(a, b):
 ```
 
 ## HW02 Make Repeater
+
+==对于环境的理解==
 
 代码对比：
 
@@ -57,6 +61,7 @@ def make_repeater(func, n):
     5
     """
     def repeat(x):
+        nonlocal n #能不能除去这个代码
 		while n > 0:
     		n -= 1
     		x = func(x)
@@ -70,7 +75,7 @@ print(make_repeater(square, 4)(5))
 
 Q: 我认为n为全局函数，在第一次调用make_repeater时就已经放入repeat中，为什么还存在报错的情况？
 
-A: repeat函数内，==n处于内部作用域，而make_repeater中的参数处于外部作用域(global)==，因此需要用global、nonlocal声明 
+A: 在嵌套函数repeat中出现`while n > 0:`。<font color='red'>在编译阶段，会把内部的n解释为本地变量</font>，所以我们需要nonlocal将count和total变成自由变量
 
 [python作用域、装饰器、闭包](https://zhuanlan.zhihu.com/p/65747821)
 
@@ -80,7 +85,7 @@ A: repeat函数内，==n处于内部作用域，而make_repeater中的参数处�
 
 对lambda的重新认识：
 
-​	如上题种对于以下代码(repeat函数的作用相当于lambda):
+​	如上题中对于以下代码(repeat函数的作用相当于lambda):
 
 ```python
 def zero(f):
@@ -154,6 +159,8 @@ snake(10, 20)
 ```
 
 ## Disc 03 Q2: Merge Numbers
+
+==递归函数的高级使用方法==
 
 ```python
 #按照降序回合数字
@@ -320,4 +327,146 @@ def pingpong(n):
     return pingpong(n-1) + flag(n-1)
 ````
 
-## HW 03 Q4: Count coins
+## HW03 Q4: Count coins
+
+![image-20220225130225150](https://raw.githubusercontent.com/formoree/PicGO-Picture/master/202202251302143.png)
+
+````python
+def get_next_coin(coin):
+    """Return the next coin. 
+    >>> get_next_coin(1)
+    5
+    >>> get_next_coin(5)
+    10
+    >>> get_next_coin(10)
+    25
+    >>> get_next_coin(2) # Other values return None
+    """
+    if coin == 1:
+        return 5
+    elif coin == 5:
+        return 10
+    elif coin == 10:
+        return 25
+
+def count_coins(change):
+    """Return the number of ways to make change using coins of value of 1, 5, 10, 25.
+    >>> count_coins(15)
+    6
+    >>> count_coins(10)
+    4
+    >>> count_coins(20)
+    9
+    >>> count_coins(100) # How many ways to make change for a dollar?
+    242
+    >>> from construct_check import check
+    >>> # ban iteration
+    >>> check(HW_SOURCE_FILE, 'count_coins', ['While', 'For'])                                          
+    True
+    """
+    "*** YOUR CODE HERE ***
+````
+
+我的代码更改了函数get_next_coins()[算是投巧]：
+
+```python
+def get_next_coin(coin): #更改题目
+    """Return the next coin. 
+    >>> get_next_coin(1)
+    5
+    >>> get_next_coin(5)
+    10
+    >>> get_next_coin(10)
+    25
+    >>> get_next_coin(2) # Other values return None
+    """
+    if coin == 25:
+        return 10
+    elif coin == 10:
+        return 5
+    elif coin == 5:
+        return 1
+
+def count_coins(change):
+    """Return the number of ways to make change using coins of value of 1, 5, 10, 25.
+    >>> count_coins(15)
+    6
+    >>> count_coins(10)
+    4
+    >>> count_coins(20)
+    9
+    >>> count_coins(100) # How many ways to make change for a dollar?
+    242
+    >>> from construct_check import check
+    >>> # ban iteration
+    >>> check(HW_SOURCE_FILE, 'count_coins', ['While', 'For'])
+    True
+    """
+    biggest_coins = 25 if change >= 25 else 10 if change >= 10 else 5 if change >= 5 else 1
+    def helper(change,biggest_coins):
+        if change == 0:
+            return 1
+        elif biggest_coins == 1:
+            return 1
+        elif change < 0:
+            return 0
+        return helper(change-biggest_coins,biggest_coins)+helper(change,get_next_coin(biggest_coins))
+    return helper(change,biggest_coins)
+```
+
+大佬答案：
+
+```python
+# 换个思维 z
+def count_change(amount):
+    """Return the number of ways to make change for amount.
+    >>> count_change(7)
+    6
+    >>> count_change(10)
+    14
+    >>> count_change(20)
+    60
+    >>> count_change(100)
+    9828
+    """
+    def helper(min_coin, amount):
+        if amount < 0:
+            return 0
+        elif amount == 0:
+            return 1
+        elif min_coin > amount:
+            return 0
+        else: 
+            with_min_coin = helper(min_coin, amount - min_coin)
+            without_min_coin = helper(2 * min_coin, amount)
+            return with_min_coin + without_min_coin
+    
+    return helper(1, amount)
+```
+
+
+
+## HW03 Q5: Anonymous factoria
+
+![image-20220225125212432](https://raw.githubusercontent.com/formoree/PicGO-Picture/master/202202251252505.png)
+
+==不能调用make_anonymous_factorial函数，不能赋值、定义函数、递归==
+
+```python
+from operator import sub, mul
+
+def make_anonymous_factorial():
+    """Return the value of an expression that computes factorial.
+
+    >>> make_anonymous_factorial()(5)
+    120
+    >>> from construct_check import check
+    >>> # ban any assignments or recursion
+    >>> check(HW_SOURCE_FILE, 'make_anonymous_factorial', ['Assign', 'AugAssign', 'FunctionDef', 'Recursion'])
+    True
+    """
+    #不可调用make_anonymous_factorial函数
+    #return lambda n: 1 if n == 1 else mul(n, make_anonymous_factorial()(sub(n, 1)))
+    return (lambda f: lambda k: f(f, k))(lambda f, k: k if k == 1 else mul(k, f(f, sub(k, 1))))
+```
+

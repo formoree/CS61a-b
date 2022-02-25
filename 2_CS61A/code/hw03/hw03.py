@@ -65,17 +65,18 @@ def pingpong(n):
     True
     """
 
-    def pingpong(n):
-        def flag(x):
-            if x == 1:
-                return 1
-            if num_eights(x) or x % 8 == 0:
-                return -flag(x - 1)
-            return flag(x - 1)
 
-        if n == 1:
+    def flag(x):
+        if x == 1:
             return 1
-        return pingpong(n - 1) + flag(n - 1)
+        if num_eights(x) or x % 8 == 0:
+            return -flag(x - 1)
+        return flag(x - 1)
+
+    if n == 1:
+        return 1
+    return pingpong(n - 1) + flag(n - 1)
+
 
 def missing_digits(n):
     """Given a number a that is in sorted, increasing order,
@@ -133,13 +134,12 @@ def get_next_coin(coin):
     25
     >>> get_next_coin(2) # Other values return None
     """
-    if coin == 1:
-        return 5
-    elif coin == 5:
+    if coin == 25:
         return 10
     elif coin == 10:
-        return 25
-
+        return 5
+    elif coin == 5:
+        return 1
 
 def count_coins(change):
     """Return the number of ways to make change using coins of value of 1, 5, 10, 25.
@@ -153,10 +153,19 @@ def count_coins(change):
     242
     >>> from construct_check import check
     >>> # ban iteration
-    >>> check(HW_SOURCE_FILE, 'count_coins', ['While', 'For'])                                          
+    >>> check(HW_SOURCE_FILE, 'count_coins', ['While', 'For'])
     True
     """
-    "*** YOUR CODE HERE ***"
+    biggest_coins = 25 if change >= 25 else 10 if change >= 10 else 5 if change >= 5 else 1
+    def helper(change,biggest_coins):
+        if change == 0:
+            return 1
+        elif biggest_coins == 1:
+            return 1
+        elif change < 0:
+            return 0
+        return helper(change-biggest_coins,biggest_coins)+helper(change,get_next_coin(biggest_coins))
+    return helper(change,biggest_coins)
 
 
 from operator import sub, mul
@@ -172,7 +181,7 @@ def make_anonymous_factorial():
     >>> check(HW_SOURCE_FILE, 'make_anonymous_factorial', ['Assign', 'AugAssign', 'FunctionDef', 'Recursion'])
     True
     """
-    return 'YOUR_EXPRESSION_HERE'
+    return  (lambda f: lambda k: f(f, k))(lambda f, k: k if k == 1 else mul(k, f(f, sub(k, 1))))
 
 
 def print_move(origin, destination):
@@ -208,4 +217,10 @@ def move_stack(n, start, end):
     Move the top disk from rod 1 to rod 3
     """
     assert 1 <= start <= 3 and 1 <= end <= 3 and start != end, "Bad start/end"
-    "*** YOUR CODE HERE ***"
+    if n == 1:
+        print_move(start,end)
+    else:
+        other_way = 6 - start- end
+        move_stack(n-1,start,other_way)
+        print_move(start,end)
+        move_stack(n-1,other_way,end)

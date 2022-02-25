@@ -96,7 +96,7 @@ def more_boar(player_score, opponent_score):
     >>> more_boar(12, 12)
     False
     >>> more_boar(7, 8)
-    False
+    True
     """
     # BEGIN PROBLEM 4
     if player_score == opponent_score and player_score == 0:
@@ -141,32 +141,20 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     while score0 < goal and score1 < goal:
-        #player0
-        num_rolls = strategy0(score0,score1)
-        score0 += take_turn(num_rolls,score1,dice,goal)
-        if score0 >= goal:
-            break
-        while more_boar(score0,score1):
-            num_rolls = strategy0(score0, score1)
-            score0 += take_turn(num_rolls, score1, dice, goal)
-            if score0 > goal:
-                return score0, score1
-        #player1
-        num_rolls = strategy1(score1,score0)
-        score1 += take_turn(num_rolls,score0,dice,goal)
-        if score1 >= goal:
-            break
-        while more_boar(score1,score0):
-            num_rolls = strategy1(score1, score0)
-            score1 += take_turn(num_rolls, score0, dice, goal)
-            if score1 >= goal:
-                return score0, score1
-
-    # END PROBLEM 5
-    # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
-    # BEGIN PROBLEM 6
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 6
+        if who == 0:
+            score0 += take_turn(strategy0(score0, score1), score1, dice, goal)
+            if not more_boar(score0, score1):
+                who = next_player(who)
+        else:
+            score1 += take_turn(strategy1(score1, score0), score0, dice, goal)
+            if not more_boar(score1, score0):
+                who = next_player(who)
+        # END PROBLEM 5
+        # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
+        # BEGIN PROBLEM 6
+        "*** YOUR CODE HERE ***"
+        say = say(score0, score1)
+        # END PROBLEM 6
     return score0, score1
 
 
@@ -247,10 +235,43 @@ def announce_highest(who, last_score=0, running_high=0):
     >>> f7 = f6(21, 77)
     Player 1 has reached a new maximum point gain. 30 point(s)!
     """
+
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+
+    def say(score0, score1):
+        score = score0 if who == 0 else score1
+        running_h = running_high
+        if score > last_score:
+            running = score - last_score
+            if running > running_high:
+                running_h = running
+                print('Player', who, 'has reached a new maximum point gain.', running_h, 'point(s)!')
+        return announce_highest(who, score, running_h)
+
+    return say
     # END PROBLEM 7
+
+    # 记录下last_score 跟着running_score作比较。如果大于就输出；反之什么也不发生；
+    # 无法调用历史记录
+
+    # def announce(score0,score1):
+    #     nonlocal last_score, running_high
+    #     if who == 0:
+    #         if score0 - last_score > running_high:
+    #             print(f'Player {who} has reached a new maximum point gain. {score0 - last_score} point(s)!')
+    #             running_high = score0 -last_score
+    #         last_score = score0
+    #         return announce_highest(who,last_score,running_high)
+    #     else:
+    #         if score1 - last_score > running_high:
+    #             print(f'Player {who} has reached a new maximum point gain. {score1 - last_score} point(s)!')
+    #             running_high = score1 -last_score
+    #         last_score = score1
+    #         return announce_highest(who,last_score,running_high)
+    # return announce
+
 
 
 #######################

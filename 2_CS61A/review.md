@@ -95,6 +95,11 @@ def zero(f):
     def g(x):
         return x
     return g
+
+#另外就是对这个函数的理解
+#在这里 lambda是作为了一个运算方式
+def church_to_int(n):
+    return n(lambda x: x + 1)(0)
 ```
 
 那对于```successor(one)```->```lambda f: lambda x:f(zero(f)(x))```
@@ -470,3 +475,10 @@ def make_anonymous_factorial():
     return (lambda f: lambda k: f(f, k))(lambda f, k: k if k == 1 else mul(k, f(f, sub(k, 1))))
 ```
 
+这道题要点，把函数当做参数传入，构造call, 在call里用lambda构造这个函数的behavior，这样就解决了迭代时需要函数名的问题。主要分为两部分。
+
+1. 第一个括号： (lambda f: lambda k: f(f, k))
+   构造一个需要f函数作为参数的函数，返回值是需要k为参数的函数，返回f函数的值，并且规定了f是一个需要2个参数的函数，f自身和k
+2. 第二个括号：(lambda f , k: k if k == 1 else k * f(f, k-1) )
+   这部分作为第一个括号的第一个call，构造f函数的行为，需要2个参数：f, k. 返回值为k或else后的值，if给出最简式，else给出，k和k-1的关系
+3. 注意环境变量的变化，写成相同的名字便于理解，实际并不相同

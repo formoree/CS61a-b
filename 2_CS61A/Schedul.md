@@ -1,4 +1,4 @@
-## Week1
+## 1 Function
 
 数据类型、运算符、函数、环境
 
@@ -95,7 +95,7 @@ I am function func()!
 
 名称也可以绑定到函数。
 
-## Week2
+## 2 Control && HOF
 
 #### 2.1 错误类型总结
 
@@ -168,10 +168,14 @@ def h(k):
 	p = k
 	return p()
 
-print(h(g))
+print(h(g)) #0
 ````
 
-## Week3
+#### 2.3 函数组合在环境中的执行过程
+
+![image](https://raw.githubusercontent.com/formoree/PicGO-Picture/master/202202280840069.png)
+
+## 3 Recursion
 
 #### 3.1 递归
 
@@ -263,7 +267,7 @@ def fib(n):
 
 ==相关应用可以看review中HW 03例题==
 
-## Week4 & Week5
+## 4 Container && Sequences
 
 #### 4.1 List
 
@@ -306,9 +310,9 @@ for <name> in <expression>:
 - `filter(func, iterable)`：在func(x)==True的情况下对iterable中的x进行迭代
 - `zip（first_iter, second_iter)`：返回一个同时迭代两个可迭代对象的迭代器，next的返回对象是一个包含这两个可迭代对象元素的元组
 
-## Week6
+## 5 Iterators && Generators
 
-#### 6.1 Tuples
+#### 5.1 Tuples
 
 > 元组是一组数列，**<font color='red'>不能</font>**改变，因此可以作为字典的键（list不能作为字典的键）
 
@@ -321,7 +325,7 @@ for <name> in <expression>:
 ([4, 2], 3 )
 ```
 
-#### 6.2 Identity Operator
+#### 5.2 Identity Operator
 
 `<exp0> is <exp1>` 如果`<exp1>`和`<exp0>`指向同一个对象，则返回True
 
@@ -332,7 +336,7 @@ identical = list1 is list2 #False
 are_equal = list1 == list2 #True
 ```
 
-#### 6.3 nonlocal 和 global
+#### 5.3 nonlocal 和 global
 
 + 区别
   + 功能不同
@@ -349,9 +353,128 @@ are_equal = list1 == list2 #True
 
 [global和nonlocal用法的详细说明](https://zhuanlan.zhihu.com/p/341378844)
 
-#### 6.4 Generator
+#### 5.4 Generator
 
 > 使用原因：**按需生成并“返回”结果**，而不是一次性产生所有的返回值
+>
+> 实现==异步==
+
+```python
+def hailstone(n):
+    """Yields the elements of the hailstone sequence starting at n.
+    
+    >>> for num in hailstone(10):
+    ...     print(num)
+    ...
+    10
+    5
+    16
+    8
+    4
+    2
+    1
+    """
+    yield n
+    while n != 1:
+        if n % 2 == 0:
+            n = n // 2
+        else:
+            n = n * 3 + 1
+        yield n
+# 在 for 循环执行时，每次循环都会执行 hailstone 函数内部的代码，执行到 yield b 时，hailstone 函数就返回一个迭代值，下次迭代时，代码从 yield n 的下一条语句继续执行，而函数的本地变量看起来和上次中断执行前是完全一样的，于是函数继续执行，直到再次遇到 yield。
+```
 
 [python之generator详解_--雪飘时吻你---CSDN博客_generator python](https://blog.csdn.net/zhong_jay/article/details/91799459)
+
+## 6 Class
+
+#### 6.1 Class
+
+类是其所有实例(object)的模板，每个类中有很多属性(instance variables)和方法(methods)
+
+```python
+class <name>:
+    <suite>
+```
+
+##### object construction
+
+> _init__方法调用新对象作为其第一个参数（命名为self），以及调用表达式中提供的任何其他参数
+
+```python
+class Account:
+    def __init__(self, account_holder):
+        self.balance = 0
+        self.holder = account_holder
+>>> a = Account('Jim')
+>>> a.holder
+'Jim'
+```
+
+##### Method invocation(调用)
+
+```python
+class Product:
+	def increase_inventory(self, amount):
+        self._inventory += amount
+        
+pina_bar.increase_inventory(2)
+#等价于
+Product.increase_inventory(pina_bar, 2)
+
+```
+
+#### 6.2 Inheritance
+
+```python
+class <name>(<base class>):
+    <suite>
+```
+
+==新的子类将从父类继承所有属性，也可以覆盖(overriding)继承来的属性( 类变量、构造器和方法定义)，在子类中重新定义原先的方法覆盖继承来的方法，但是还可以在父类中访问原来的属性或方法==
+
++ 使用父类方法super()
+
+```python
+super().attribute()->BaseClassName.attribute(self)
+```
+
++ 当查找一个类中的名称时，如果这个名称是在当前类中的，就返回这个类中的名称的值，否则查找父类中是否有这个名称
+
+#### 6.3 Special Object Methods
+
++ `__new__`和`__init__`
+
+  `__new__`是用来构造实例的，而`__init__`只是用来对返回的实例进行一些属性的初始化
+
+  我们继承基类object(例如，class Animal(object))时同时就从基类中继承了`__new__`方法，所以就不需要重新在子类中实现。
+
++ `__str__`和`__repr__`:**把类的实例变为字符串**
+  + `__str__`:用于用户调用(==用些Python脚本(.py)时使用，用print语句输出字符串信息==)
+  + `__repr__`:用于开发人员调用(==在交互式环境下测试使用，例如cmd下的Python、ipython==)
+
++ `__ setattr__`、`__ getattr__`、`__ getattribute__`与`__delattr__`
+  + **setattr**：设置属性
+  + **getattr**：访问不存的属性时调用，可能会有同学有疑问，访问不存的属性要它干吗？可以用来做异常处理！
+  + **getattribute**：访问存在的属性，如果访问属性不存在的时候随后会调用__getattr__
+  + **delattr**：删除属性
+
+参考：[【python】类的特殊方法](https://blog.csdn.net/momoschweigen/article/details/106784347#:~:text=Python是一种面向对象的语言，而特殊方法又是Python类中一个重点，因此学习Python类的特殊方法能够有助于设计出更加简洁、规范的代码架构。 Python类的特殊方法又称为 魔术方法 ，它是以,双下划线包裹 一个词的形式出现，例如 init 。) 
+
+​			[python面向对象中的一些特殊方法--列表](https://www.cnblogs.com/angelyan/p/10366961.html)
+
+#### 6.4 private
+
+
+
+## 7 Others
+
+#### 7.1 Declarative Programming Definition
+
+- *declatative languages*：一个程序是对希望得到的结果的描述，怎样得到结果是由解释器负责的。申诉式语言包括SQL、Prolog等
+- *imperative languages*：一个程序是对计算过程的描述，解释器负责执行这些计算过程。命令式语言包括Python、C等
+
+#### 7.2  Parallel Computing
+
+[4.8 Parallel Computing](http://composingprograms.com/pages/48-parallel-computing.html)
 
